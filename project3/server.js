@@ -1,20 +1,26 @@
 'use strict';
 
-const Hapi=require('hapi');
-const port = 8000
+const Hapi = require('hapi');
+const PORT = 8000
 // const Blockchain = require('./simpleChain')
 const Blockchain = require('./blockchain')
 const Block = require('./block')
 const  blockchain = new Blockchain()
 
 // Create a server with a host and port
-const server=Hapi.server({
+const server = Hapi.server({
     host: 'localhost',
-    port: port
+    port: PORT
 });
 
 // Add the route
 server.route([{
+    method: ['GET', 'POST'],
+    path: '/',
+    handler: (request, h) => {
+        return "Hello World!";
+    }
+},{
     method:'GET',
     path:'/block/{height}',
     handler: async (request, h) => {
@@ -33,12 +39,30 @@ server.route([{
     method:'POST',
     path:'/block',
     handler: async (request,h) => {
-        const body = request.payload.body;
+        let body = request.payload.body;
+        
+
+
         if (body === '' || body === undefined) {
-            return {
-                "status": 400,
-                "message": "Body if the request is null or undefined."
-            };
+
+            if (IsJsonString(request.payload)) {
+                var jsonObject = JSON.parse(request.payload);
+                console.log(jsonObject);
+                body = jsonObject.body;
+
+                if (body === '' || body === undefined) {
+                    return {
+                        "status": 400,
+                        "message": "Block body cannot be empty."
+                    };
+                }
+
+            } else {
+                return {
+                    "status": 400,
+                    "message": "Block body cannot be empty."
+                };
+            }
         }
 
         let block = new Block(body);
@@ -51,6 +75,22 @@ server.route([{
         return resp;
     }
 }]);
+
+function IsJsonString(json)
+{
+    var str = json.toString();
+     
+    try
+    {
+        JSON.parse(str);
+    }
+    catch (e)
+    {
+        return false;
+    }
+     
+    return true;
+}
 
 // Start the server
 async function start() {

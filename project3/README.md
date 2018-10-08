@@ -3,6 +3,10 @@
 Blockchain has the potential to change the way that the world approaches data. 
 Develop Blockchain skills by understanding the data model behind Blockchain by developing your own simplified private blockchain.
 
+## Framework Used
+
+Hapi.js
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -26,9 +30,9 @@ npm install crypto-js --save
 ```
 npm install level --save
 ```
-- Install hopi.js with --save flag
+- Install hapi.js with --save flag
 ```
-npm install hopi --save
+npm install hapi --save
 ```
 
 ## Testing
@@ -37,7 +41,13 @@ To test code:
 
 1: Open a command prompt or shell terminal after install node.js and other js libraries.
 
-2: Enter a node session with server.js file.
+2: Enter a node session by  
+
+```
+npm start
+```
+
+or with server.js
 
 ```
 node server.js
