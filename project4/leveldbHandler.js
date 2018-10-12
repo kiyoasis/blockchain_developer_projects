@@ -3,7 +3,9 @@
 |  =============================================================*/
 const level = require('level');
 const chainDB = './chaindata';
+const addressDB = './address';
 const db = level(chainDB);
+const addressdb = level(addressDB);
 
 module.exports = {
 
@@ -64,5 +66,19 @@ module.exports = {
                 }
             }
         });
-    }
+    },
+
+    /**
+     * Address Handler
+     */ 
+    // Get data from addressDB with key
+    getAddressDataFromLevelDB(key) {
+        return new Promise((resolve, reject) => {
+            addressdb.get(key, (err, value) => {
+                if (err) reject(err);
+                resolve(value);
+            });
+        });
+    },
+
 }

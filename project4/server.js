@@ -1,11 +1,11 @@
 'use strict';
 
 const Hapi = require('hapi');
-const PORT = 8000
-// const Blockchain = require('./simpleChain')
-const Blockchain = require('./blockchain')
-const Block = require('./block')
-const  blockchain = new Blockchain()
+const PORT = 8000;
+const Blockchain = require('./blockchain');
+const Block = require('./block');
+const blockchain = new Blockchain();
+const starHandler = require('./starHandler');
 
 // Create a server with a host and port
 const server = Hapi.server({
@@ -40,8 +40,6 @@ server.route([{
     path:'/block',
     handler: async (request,h) => {
         let body = request.payload.body;
-        
-
 
         if (body === '' || body === undefined) {
 
@@ -74,21 +72,43 @@ server.route([{
         
         return resp;
     }
+},{
+    method:'POST',
+    path:'/block/requestValidation',
+    handler: async (request,h) => {
+
+        let address = request.payload.address;
+        
+        if (address === '' || address === undefined) {
+            return {
+                "status": 400,
+                "message": "Address is empty."
+            };
+        }
+
+        starHandler.requestValidationHandler();
+
+
+        let block = new Block(body);
+        console.log(block);
+
+        await blockchain.addBlock(block);
+        const height = await blockchain.getBlockHeight();
+        const resp = await blockchain.getBlock(height);
+        
+        return resp;
+    }
 }]);
 
-function IsJsonString(json)
-{
+function IsJsonString(json) {
     var str = json.toString();
      
-    try
-    {
+    try {
         JSON.parse(str);
-    }
-    catch (e)
-    {
+    } catch (e) {
         return false;
     }
-     
+    
     return true;
 }
 
