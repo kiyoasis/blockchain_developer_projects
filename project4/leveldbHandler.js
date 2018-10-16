@@ -72,9 +72,20 @@ module.exports = {
      * Address Handler
      */ 
     // Get data from addressDB with key
-    getAddressDataFromLevelDB(key) {
+    addAddressDataToLevelDB(address, value) {
         return new Promise((resolve, reject) => {
-            addressdb.get(key, (err, value) => {
+            addressdb.put(address, value, (err) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(`Address data of #${address} is added.`);
+            });
+        });
+    },
+
+    async getAddressDataFromLevelDB(address) {
+        return new Promise((resolve, reject) => {
+            addressdb.get(address, (err, value) => {
                 if (err) reject(err);
                 resolve(value);
             });

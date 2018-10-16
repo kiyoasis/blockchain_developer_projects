@@ -74,10 +74,12 @@ server.route([{
     }
 },{
     method:'POST',
-    path:'/block/requestValidation',
+    path:'/requestValidation',
     handler: async (request,h) => {
 
         let address = request.payload.address;
+
+        console.log(request.payload);
         
         if (address === '' || address === undefined) {
             return {
@@ -86,15 +88,7 @@ server.route([{
             };
         }
 
-        starHandler.requestValidationHandler();
-
-
-        let block = new Block(body);
-        console.log(block);
-
-        await blockchain.addBlock(block);
-        const height = await blockchain.getBlockHeight();
-        const resp = await blockchain.getBlock(height);
+        let resp = await starHandler.requestValidationHandler(address);
         
         return resp;
     }
