@@ -1,8 +1,8 @@
 {
-  "name": "project_3",
+  "name": "project4",
   "version": "1.0.0",
-  "description": "Blockchain has the potential to change the way that the world approaches data. Develop Blockchain skills by understanding the data model behind Blockchain by developing your own simplified private blockchain.",
-  "main": "server.js",
+  "description": "",
+  "main": "block.js",
   "dependencies": {
     "crypto-js": "^3.1.9-1",
     "hapi": "^17.6.0",
@@ -11,8 +11,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC"

@@ -27,8 +27,8 @@ module.exports = {
     
             data = {
                 address: address,
-                message: message,
                 requestTimeStamp: timestamp,
+                message: message,
                 validationWindow: validationWindow
             };
     
@@ -55,8 +55,8 @@ module.exports = {
         
                 data = {
                     address: address,
-                    message: message,
                     requestTimeStamp: timestamp,
+                    message: message,
                     validationWindow: validationWindow
                 };
 
@@ -76,5 +76,54 @@ module.exports = {
         console.log("data: " + data);
 
         return data
+    }, 
+
+    async messageSignatureValidator(address, signature) {
+
+        let addressData;
+        try {
+            addressData = await leveldb.getAddressDataFromLevelDB(address);
+            console.log("addressData found" + addressData);
+        } catch (error) {
+            console.log("data not found");
+            return null;
+        }
+
+        let value = JSON.parse(addressData);
+
+        if (value.messageSignature === 'valid') {
+            return {
+                registerStar: true,
+                status: value
+            };
+        } else {
+            const nowSubFiveMinutes = Date.now() - (5 * 60 * 1000);
+            const isExpired = value.requestTimeStamp < nowSubFiveMinutes
+            let isValid = false
+        
+            if (isExpired) {
+                value.validationWindow = 0
+                value.messageSignature = 'Validation window was expired'
+            } else {
+                value.validationWindow = Math.floor((value.requestTimeStamp - nowSubFiveMinutes) / 1000);
+        
+                try {
+                    isValid = bitcoinMessage.verify(value.message, address, signature);
+                } catch (error) {
+                    isValid = false;
+                }
+        
+                value.messageSignature = isValid ? 'valid' : 'invalid'
+            }
+            
+            await leveldb.addAddressDataToLevelDB(data.address, JSON.stringify(value));
+            //db.put(address, JSON.stringify(value))
+        
+            return {
+                registerStar: !isExpired && isValid,
+                status: value
+            };
+        }
+
     }
 }

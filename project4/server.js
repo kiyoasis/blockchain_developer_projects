@@ -7,6 +7,9 @@ const Block = require('./block');
 const blockchain = new Blockchain();
 const starHandler = require('./starHandler');
 
+const bitcoin = require('bitcoinjs-lib');
+const bitcoinMessage = require('bitcoinjs-message');
+
 // Create a server with a host and port
 const server = Hapi.server({
     host: 'localhost',
@@ -89,6 +92,40 @@ server.route([{
         }
 
         let resp = await starHandler.requestValidationHandler(address);
+        
+        return resp;
+    }
+},{
+    method:'POST',
+    path:'/message-signature/validate',
+    handler: async (request,h) => {
+
+        console.log(request.payload);
+        let address = request.payload.address;
+        let signature = request.payload.signature;
+        
+        if (address === '' || address === undefined) {
+            return {
+                "status": 400,
+                "message": "Address is empty."
+            };
+        }
+
+        if (signature === '' || signature === undefined) {
+            return {
+                "status": 400,
+                "message": "Signature is empty."
+            };
+        }
+
+        let resp = await starHandler.messageSignatureValidator(address, signature);
+
+        if (resp == null) {
+            return {
+                "status": 400,
+                "message": "Message signature validation failed."
+            };
+        }
         
         return resp;
     }
