@@ -3,12 +3,10 @@
 const Hapi = require('hapi');
 const PORT = 8000;
 const Blockchain = require('./blockchain');
-const Block = require('./block');
+// const Block = require('./block');
 const blockchain = new Blockchain();
 const starHandler = require('./starHandler');
-
-const bitcoin = require('bitcoinjs-lib');
-const bitcoinMessage = require('bitcoinjs-message');
+// const leveldb = require('./leveldbHandler');
 
 // Create a server with a host and port
 const server = Hapi.server({
@@ -23,7 +21,8 @@ server.route([{
     handler: (request, h) => {
         return "Hello World!";
     }
-},{
+},
+{
     method:'GET',
     path:'/block/{height}',
     handler: async (request, h) => {
@@ -39,50 +38,87 @@ server.route([{
     }
 },
 {
+    method:'GET',
+    path:'/stars/address:{address}',
+    handler: async (request, h) => {
+        try {
+            console.log(request.params.address);
+            
+            const resp = await blockchain.getBlocksByAddress(request.params.address);
+            return resp;  
+        } catch (error) {
+            return {
+                "status": 404,
+                "message": "No block was found."
+            };
+        }
+    }
+},
+{
+    method:'GET',
+    path:'/stars/hash:{hash}',
+    handler: async (request, h) => {
+        try {
+            console.log(request.params.hash);
+            
+            const resp = await blockchain.getBlockByHash(request.params.hash);
+
+            if (resp == null) {
+                return {
+                    "status": 404,
+                    "message": "No block was found."
+                };
+            }
+            return resp;  
+        } catch (error) {
+            return {
+                "status": 404,
+                "message": "No block was found."
+            };
+        }
+    }
+},
+{
     method:'POST',
     path:'/block',
     handler: async (request,h) => {
-        let body = request.payload.body;
 
-        if (body === '' || body === undefined) {
-
-            if (IsJsonString(request.payload)) {
-                var jsonObject = JSON.parse(request.payload);
-                console.log(jsonObject);
-                body = jsonObject.body;
-
-                if (body === '' || body === undefined) {
-                    return {
-                        "status": 400,
-                        "message": "Block body cannot be empty."
-                    };
-                }
-
-            } else {
-                return {
-                    "status": 400,
-                    "message": "Block body cannot be empty."
-                };
-            }
+        if (request.payload === null) {
+            return {
+                "status": 400,
+                "message": "The body of Post message cannot be empty."
+            };
         }
 
-        let block = new Block(body);
-        console.log(block);
+        if (request.payload.address === '' || request.payload.address === undefined) {
+            return {
+                "status": 400,
+                "message": "Address cannot be empty."
+            };
+        }
 
-        await blockchain.addBlock(block);
-        const height = await blockchain.getBlockHeight();
-        const resp = await blockchain.getBlock(height);
-        
+        if (request.payload.star === '' || request.payload.star === undefined) {
+            return {
+                "status": 400,
+                "message": "Contents of star cannot be empty."
+            };
+        }
+
+        let address = request.payload.address;
+        let star = request.payload.star;
+        let resp = await starHandler.registerBlock(address, star);
+
         return resp;
     }
-},{
+},
+{
     method:'POST',
     path:'/requestValidation',
     handler: async (request,h) => {
 
-        let address = request.payload.address;
-
+        console.log("\n Message recieved for request validation.");
         console.log(request.payload);
+        let address = request.payload.address;
         
         if (address === '' || address === undefined) {
             return {
@@ -95,11 +131,13 @@ server.route([{
         
         return resp;
     }
-},{
+},
+{
     method:'POST',
     path:'/message-signature/validate',
     handler: async (request,h) => {
 
+        console.log("\n Message recieved for signature validation.");
         console.log(request.payload);
         let address = request.payload.address;
         let signature = request.payload.signature;

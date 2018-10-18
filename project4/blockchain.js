@@ -61,7 +61,40 @@ class Blockchain {
     async getBlock(blockHeight) {
         // Parse the string object into JSON
         let block = JSON.parse(await leveldb.getBlockFromLevelDB(blockHeight));
+        try {
+            block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString();
+        } catch (error) {
+            block = JSON.parse(await leveldb.getBlockFromLevelDB(blockHeight));
+        }
+        
         return block;
+    }
+
+    // get blocks by address
+    async getBlocksByAddress(address) {
+        // Parse the string object into JSON
+        let blocks = await leveldb.getBlocksByAddressFromLevelDB(address);
+        return blocks;
+    }
+
+    // get blocks by address
+    async getBlockByHash(hash) {
+        // Parse the string object into JSON
+        let block = await leveldb.getBlockByHashFromLevelDB(hash);
+        return block;
+    }
+
+    // Get block height
+    async getBlockHeight() {
+        const height = await leveldb.getBlockHeightLevelDB();
+
+        if (height === -1) {
+            console.log("There is no block ins the chain.");
+        } else {
+            console.log("The block height is: " + height);
+        }
+
+        return height;
     }
 
     // Get block height

@@ -31,6 +31,59 @@ module.exports = {
         });
     },
 
+    getBlocksByAddressFromLevelDB(address) {
+        const blocks = [];
+        let block;
+    
+        return new Promise((resolve, reject) => {
+            db.createReadStream().on('data', (data) => {
+                // Avoid genesis block
+                if (parseInt(data.key) !== 0) {
+    
+                    console.log(data.value);
+                    block = JSON.parse(data.value);
+                    if (block.body !== '' && block.body !== undefined) {
+                        if (block.body.address !== '' && block.body.address !== undefined) {
+                            if (block.body.address === address) {
+                                block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString();
+                                blocks.push(block);
+                            }
+                        }
+                    }
+                }
+            }).on('error', (error) => {
+                return reject(error)
+            }).on('close', () => {
+                return resolve(blocks)
+            })
+        })
+    },
+
+    // Get data from levelDB with key
+    getBlockByHashFromLevelDB(hash) {
+        let rblock = null;
+    
+        return new Promise((resolve, reject) => {
+            db.createReadStream().on('data', (data) => {
+                let block = JSON.parse(data.value);
+                if (block.hash !== '' && block.hash !== undefined) {
+                    if (block.hash === hash) {
+                        try {
+                            block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString();
+                            rblock = block;
+                        } catch (error) {
+                            rblock = block;
+                        }
+                    }
+                }
+            }).on('error', (error) => {
+                return reject(error)
+            }).on('close', () => {
+                return resolve(rblock)
+            })
+        })
+    },
+
     getBlockHeightLevelDB() {
         return new Promise((resolve, reject) => {
             let height = -1;
