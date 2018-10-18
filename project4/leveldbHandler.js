@@ -8,7 +8,7 @@ const db = level(chainDB);
 const addressdb = level(addressDB);
 
 module.exports = {
-
+    // Adding a block to chaindata
     addBlockToLevelDB(key, value) {
         return new Promise((resolve, reject) => {
             db.put(key, value, (err) => {
@@ -31,6 +31,7 @@ module.exports = {
         });
     },
 
+    // Getting blocks by address as a key
     getBlocksByAddressFromLevelDB(address) {
         const blocks = [];
         let block;
@@ -39,7 +40,6 @@ module.exports = {
             db.createReadStream().on('data', (data) => {
                 // Avoid genesis block
                 if (parseInt(data.key) !== 0) {
-    
                     console.log(data.value);
                     block = JSON.parse(data.value);
                     if (block.body !== '' && block.body !== undefined) {
@@ -59,10 +59,9 @@ module.exports = {
         })
     },
 
-    // Get data from levelDB with key
+    // Get block data from levelDB with hash key
     getBlockByHashFromLevelDB(hash) {
-        let rblock = null;
-    
+        let returnedBlock = null;
         return new Promise((resolve, reject) => {
             db.createReadStream().on('data', (data) => {
                 let block = JSON.parse(data.value);
@@ -70,20 +69,21 @@ module.exports = {
                     if (block.hash === hash) {
                         try {
                             block.body.star.storyDecoded = new Buffer(block.body.star.story, 'hex').toString();
-                            rblock = block;
+                            returnedBlock = block;
                         } catch (error) {
-                            rblock = block;
+                            returnedBlock = block;
                         }
                     }
                 }
             }).on('error', (error) => {
                 return reject(error)
             }).on('close', () => {
-                return resolve(rblock)
+                return resolve(returnedBlock)
             })
         })
     },
 
+    // Getting block height from level db
     getBlockHeightLevelDB() {
         return new Promise((resolve, reject) => {
             let height = -1;
@@ -122,9 +122,9 @@ module.exports = {
     },
 
     /**
-     * Address Handler
+     * Address Data Handler
      */ 
-    // Get data from addressDB with key
+    // Adding address data  to addressDB
     addAddressDataToLevelDB(address, value) {
         return new Promise((resolve, reject) => {
             addressdb.put(address, value, (err) => {
@@ -136,6 +136,7 @@ module.exports = {
         });
     },
 
+    // Get address data from addressDB with address as a key
     async getAddressDataFromLevelDB(address) {
         return new Promise((resolve, reject) => {
             addressdb.get(address, (err, value) => {
@@ -143,6 +144,5 @@ module.exports = {
                 resolve(value);
             });
         });
-    },
-
+    }
 }

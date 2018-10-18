@@ -19,14 +19,10 @@ const leveldb = require('./leveldbHandler');
 class Blockchain {
 
     constructor() {
-        // new chain array is commented out
-        // this.chain = [];
-
         // add first genesis block
         this.getBlockHeight().then((height) => {
             if (height + 1 === 0) {
                 this.addBlock(new Block("First block in the chain - Genesis block"));
-                //console.log("Genesis block has been inserted.");
             }
         });
     }
@@ -39,7 +35,6 @@ class Blockchain {
 
         // block height
         newBlock.height = chainHeight + 1;
-        // newBlock.height = this.chain.length;
 
         // UTC timestamp
         newBlock.time = new Date().getTime().toString().slice(0, -3);
@@ -72,14 +67,12 @@ class Blockchain {
 
     // get blocks by address
     async getBlocksByAddress(address) {
-        // Parse the string object into JSON
         let blocks = await leveldb.getBlocksByAddressFromLevelDB(address);
         return blocks;
     }
 
     // get blocks by address
     async getBlockByHash(hash) {
-        // Parse the string object into JSON
         let block = await leveldb.getBlockByHashFromLevelDB(hash);
         return block;
     }
@@ -89,22 +82,7 @@ class Blockchain {
         const height = await leveldb.getBlockHeightLevelDB();
 
         if (height === -1) {
-            console.log("There is no block ins the chain.");
-        } else {
-            console.log("The block height is: " + height);
-        }
-
-        return height;
-    }
-
-    // Get block height
-    async getBlockHeight() {
-        const height = await leveldb.getBlockHeightLevelDB();
-
-        if (height === -1) {
-            console.log("There is no block ins the chain.");
-        } else {
-            console.log("The block height is: " + height);
+            console.log("There is no block in the chain.");
         }
 
         return height;

@@ -1,22 +1,19 @@
 const leveldb = require('./leveldbHandler');
-//const bitcoin = require('bitcoinjs-lib');
 const bitcoinMessage = require('bitcoinjs-message');
 const Block = require('./block');
 const Blockchain = require('./blockchain');
 const blockchain = new Blockchain();
 
 module.exports = {
+    
     async requestValidationHandler(address) {
-
-        console.log("requestValidationHandler is called");
-        console.log("address: " + address);
 
         let addressData;
         try {
             addressData = await leveldb.getAddressDataFromLevelDB(address);
             console.log("addressData found: \n" + addressData);
         } catch (error) {
-            console.log("data not found in the leveldb.");
+            console.log("address data not found in the leveldb.");
             addressData == null;
         }
 
@@ -24,41 +21,38 @@ module.exports = {
 
         // The address data is new
         if (addressData == null) {
-            const timestamp = Date.now();
-            const message = `${address}:${timestamp}:starRegistry`;
+            const currentTime = Date.now();
+            const message = `${address}:${currentTime}:starRegistry`;
             const validationWindow = 300;
     
             data = {
                 address: address,
-                requestTimeStamp: timestamp,
+                requestTimeStamp: currentTime,
                 message: message,
                 validationWindow: validationWindow
             };
     
-            await leveldb.addAddressDataToLevelDB(data.address, JSON.stringify(data));
-            console.log("data has been addeed!");
+            await leveldb.addAddressDataToLevelDB(address, JSON.stringify(data));
+            console.log("address data has been addeed!");
         }
 
-        // The address data already registered but not validated.
+        // The address data already existes but not validated.
         else {
             console.log("address data is temporalily registered.")
         
-            let value = JSON.parse(addressData)
-        
-            console.log(value)
-        
-            const nowSubFiveMinutes = Date.now() - (5 * 60 * 1000)
-            const isExpired = value.requestTimeStamp < nowSubFiveMinutes
+            let value = JSON.parse(addressData);
+            const fiveMinutesAgo = Date.now() - (5 * 60 * 1000)
+            const isExpired = value.requestTimeStamp < fiveMinutesAgo
         
             if (isExpired) {
-                console.log("The time has expired and rerefister data again.")
-                const timestamp = Date.now();
-                const message = `${address}:${timestamp}:starRegistry`;
+                console.log("The address data has been expired and needs to be readded again.")
+                const currentTime = Date.now();
+                const message = `${address}:${currentTime}:starRegistry`;
                 const validationWindow = 300;
         
                 data = {
                     address: address,
-                    requestTimeStamp: timestamp,
+                    requestTimeStamp: currentTime,
                     message: message,
                     validationWindow: validationWindow
                 };
@@ -70,7 +64,7 @@ module.exports = {
                     address: address,
                     message: value.message,
                     requestTimeStamp: value.requestTimeStamp,
-                    validationWindow: Math.floor((value.requestTimeStamp - nowSubFiveMinutes) / 1000)
+                    validationWindow: Math.floor((value.requestTimeStamp - fiveMinutesAgo) / 1000)
                 }
             }
         }
@@ -90,22 +84,21 @@ module.exports = {
         }
 
         let value = JSON.parse(addressData);
-
         if (value.messageSignature === 'valid') {
             return {
                 registerStar: true,
                 status: value
             };
         } else {
-            const nowSubFiveMinutes = Date.now() - (5 * 60 * 1000);
-            const isExpired = value.requestTimeStamp < nowSubFiveMinutes
-            let isValid = false
+            const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+            const isExpired = value.requestTimeStamp < fiveMinutesAgo;
+            let isValid = false;
         
             if (isExpired) {
-                value.validationWindow = 0
-                value.messageSignature = 'Validation window was expired'
+                value.validationWindow = 0;
+                value.messageSignature = 'validationWindow was expired';
             } else {
-                value.validationWindow = Math.floor((value.requestTimeStamp - nowSubFiveMinutes) / 1000);
+                value.validationWindow = Math.floor((value.requestTimeStamp - fiveMinutesAgo) / 1000);
         
                 try {
                     isValid = bitcoinMessage.verify(value.message, address, signature);
@@ -113,7 +106,7 @@ module.exports = {
                     isValid = false;
                 }
         
-                value.messageSignature = isValid ? 'valid' : 'invalid'
+                value.messageSignature = isValid ? 'valid' : 'invalid';
             }
             
             await leveldb.addAddressDataToLevelDB(address, JSON.stringify(value));
@@ -149,7 +142,7 @@ module.exports = {
             };
         }
         
-        // If the address data is valid
+        // If the address data is valid, do as follows:
         let body = {};
         body.address = address;
 

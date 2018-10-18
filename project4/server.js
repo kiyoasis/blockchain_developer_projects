@@ -3,10 +3,8 @@
 const Hapi = require('hapi');
 const PORT = 8000;
 const Blockchain = require('./blockchain');
-// const Block = require('./block');
 const blockchain = new Blockchain();
 const starHandler = require('./starHandler');
-// const leveldb = require('./leveldbHandler');
 
 // Create a server with a host and port
 const server = Hapi.server({
@@ -168,18 +166,6 @@ server.route([{
         return resp;
     }
 }]);
-
-function IsJsonString(json) {
-    var str = json.toString();
-     
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    
-    return true;
-}
 
 // Start the server
 async function start() {
