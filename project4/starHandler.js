@@ -160,27 +160,25 @@ module.exports = {
             };
         } 
 
-        console.log("star.story: " + star.story);
-        
         let story = "";
         if (star.story !== '' && star.story !== undefined) {
             story = star.story;
         }
-        console.log("story: " + story);
+
         body.star = {
             ra: star.ra,
             dec: star.dec,
             mag: star.mag,
             con: star.con,
             story: new Buffer(story).toString('hex')
-        }
+        };
 
         let block = new Block(body);
-        console.log(block);
-
         await blockchain.addBlock(block);
         const height = await blockchain.getBlockHeight();
         const resp = await blockchain.getBlock(height);
+
+        leveldb.deleteAddressData(address);
 
         return resp;
     }

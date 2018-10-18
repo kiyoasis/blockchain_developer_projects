@@ -144,5 +144,14 @@ module.exports = {
                 resolve(value);
             });
         });
+    },
+
+    // Deleting an address data in levelDB with address key
+    deleteAddressData(address) {
+        addressdb.del(address, function(err) {
+            addressdb.get(address, function(err, data) {
+                console.log(address + " has been deleted.");
+            })
+        })
     }
 }
