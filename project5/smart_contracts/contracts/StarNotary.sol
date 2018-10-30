@@ -45,7 +45,7 @@ contract StarNotary is ERC721 {
 
         tokenIdToStarInfo[tokenId] = newStar;
 
-        mint(tokenId);
+        _mint(msg.sender, tokenId);
 
         tokenId ++;
     }
@@ -55,7 +55,7 @@ contract StarNotary is ERC721 {
     }
 
     function putStarUpForSale(uint256 _tokenId, uint256 _price) public { 
-        require(this.ownerOf(tokenId) == msg.sender);
+        require(this.ownerOf(_tokenId) == msg.sender);
 
         starsForSale[_tokenId] = _price;
     }
@@ -68,10 +68,11 @@ contract StarNotary is ERC721 {
 
         require(msg.value >= starCost);
 
-        clearPreviousStarState(starOwner, _tokenId);
+        //clearPreviousStarState(starOwner, _tokenId);
+        _removeTokenFrom(starOwner, _tokenId);
 
         //transferFromHelper(starOwner, msg.sender, _tokenId);
-        _addTokenTo(msg.sender, tokenId);
+        _addTokenTo(msg.sender, _tokenId);
 
         if(msg.value > starCost) { 
             msg.sender.transfer(msg.value - starCost);
@@ -97,13 +98,5 @@ contract StarNotary is ERC721 {
         string starMag, string starRa) {
         return (tokenIdToStarInfo[_tokenId].name, tokenIdToStarInfo[_tokenId].story, tokenIdToStarInfo[_tokenId].coordinates
             .dec, tokenIdToStarInfo[_tokenId].coordinates.mag, tokenIdToStarInfo[_tokenId].coordinates.ra);
-    }
-
-    function clearPreviousStarState(address _starOwner, uint256 _tokenId) private {
-        //clear approvals 
-        //tokenToApproved[_tokenId] = address(0);
-        //clear being on sale 
-        //starsForSale[_tokenId] = 0;
-        _removeTokenFrom(_starOwner, _tokenId);
     }
 }
