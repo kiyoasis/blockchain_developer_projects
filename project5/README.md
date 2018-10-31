@@ -7,7 +7,7 @@ For this project, you will create a DApp by adding functionality to your smart c
 ## console
 
 ```
-truffle migrate --reset --compile-all —network rinkeby
+truffle migrate --reset --compile-all —-network rinkeby
 ```
 
 Using network 'rinkeby'.
@@ -26,3 +26,6 @@ Saving artifacts...
 
 ## contract hash
 0x8bd731706c8bcf7e8731c8a0d72d46458a74c3149952147c11200ca0d436a44d
+
+## Transaction
+0xdea03d726381d1b8fa0eaecd0bcadf06905658b92dc5dbc34d75fb923cfe7343

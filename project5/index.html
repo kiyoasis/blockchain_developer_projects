@@ -31,7 +31,7 @@
                 <input id="star-dec" type="text">
                 &nbsp;&nbsp;<label class="bold">Mag:</label>
                 <input id="star-mag" type="text">
-                &nbsp;&nbsp;<label class="bold">Ra:</label>
+                &nbsp;&nbsp;<label class="bold">Cent:</label>
                 <input id="star-ra" type="text">
             </div>
 
@@ -54,7 +54,7 @@
                 web3 = new Web3(web3.currentProvider) // what Metamask injected 
             } else {
                 // Instantiate and set Ganache as your provider
-                web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+                web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/a6c9127469b44b6aa399a3a023657125"));
             }
 
             // The default (top) wallet account from a list of test accounts 
@@ -64,7 +64,7 @@
             var StarNotary = returnStarNotary();
 
             // Grab the contract at specified deployed address with the interface defined by the ABI
-            var starNotary = StarNotary.at('0x749089035baa51aef20ab8f3affc9a35d2694ae1');
+            var starNotary = StarNotary.at('0xc43b09da011e356c4e86d198b867e0017d2fca52');
 
             // // Get and display star owner
             // starNotary.starOwner(function (error, result) {
@@ -98,8 +98,9 @@
                     starNotary.createStar(starName, starStory, starDec, starMag, starRa, {from:account, gas:3000000}, 
                         function (error, result) {
                             if (!error) {
-                                document.getElementById("result1").value = "star registration complete!"
+                                document.getElementById("result1").value = "star registration complete!";
                             } else { 
+                                document.getElementById("result1").value = "The star already exists or information you entered is wrong."
                                 console.log(error);
                             }
                     });
@@ -119,11 +120,21 @@
                     let account = accounts[0];
                     let tokenId = document.getElementById("star-tokenID").value;
 
+                    if (isNaN(tokenId)) {
+                        alert("The token ID must be a number.");
+                        return;
+                    }
+
                     // Get and display star name
                     starNotary.tokenIdToStarInfo(tokenId, function (error, result) {
                         if (!error) {
-                            document.getElementById('result2').innerText = result;
-                        } else { 
+                            if (result == ",,,,") {
+                                document.getElementById('result2').innerText = 'No star was found with this tokenID.';
+                            } else {
+                                document.getElementById('result2').innerText = '[' + result + ']';
+                            }
+                        } else {
+                            document.getElementById('result2').innerText = 'Input tokenID info was wrong.';
                             console.log(error);
                         }
                     });                   

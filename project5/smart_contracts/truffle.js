@@ -12,7 +12,8 @@
  *   },
  */
 var HDWalletProvider = require('truffle-hdwallet-provider');
-var mnemonic = 'various trick blood crime shoe erupt wedding lawn property belt arrow avoid';
+//var mnemonic = 'various trick blood crime shoe erupt wedding lawn property belt arrow avoid';
+var mnemonic = 'voyage crop hill sea transfer blossom coil effort model east hard emerge';
 var endpoint = 'https://rinkeby.infura.io/v3/a6c9127469b44b6aa399a3a023657125'
 
 module.exports = {
@@ -27,14 +28,15 @@ module.exports = {
                 return new HDWalletProvider(mnemonic, endpoint) 
             },
             network_id: 4,
+            //from: "0x5860553ac5a7849c14818f13947fb25f2db601d1",
             gas: 4500000,
             gasPrice: 10000000000,
-        },
-        solc: {
-            optimizer: {
-                enabled: true,
-                runs: 200
-            }
         }
+        // solc: {
+        //     optimizer: {
+        //         enabled: true,
+        //         runs: 200
+        //     }
+        // }
     }
 };
