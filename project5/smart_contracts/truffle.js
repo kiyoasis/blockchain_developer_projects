@@ -28,7 +28,6 @@ module.exports = {
                 return new HDWalletProvider(mnemonic, endpoint) 
             },
             network_id: 4,
-            //from: "0x5860553ac5a7849c14818f13947fb25f2db601d1",
             gas: 4500000,
             gasPrice: 10000000000,
         }

@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 //import "./ERC721Token.sol";
 import "../node_modules/openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+//import "github.com/OpenZeppelin/zeppelin-solidity/contracts/token/ERC721/ERC721.sol";
 
 contract StarNotary is ERC721 { 
 
